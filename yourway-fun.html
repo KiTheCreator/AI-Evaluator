@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YourWay Storage — Call QA ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;
+  --surface:#161b22;
+  --surface2:#21262d;
+  --surface3:#2d333b;
+  --border:#30363d;
+  --border2:#444c56;
+  --text:#e6edf3;
+  --muted:#8b949e;
+  --lime:#a8ff3e;
+  --lime-dim:rgba(168,255,62,0.12);
+  --lime-dim2:rgba(168,255,62,0.06);
+  --pink:#ff6eb4;
+  --pink-dim:rgba(255,110,180,0.12);
+  --cyan:#3ef0ff;
+  --cyan-dim:rgba(62,240,255,0.1);
+  --orange:#ff9f1c;
+  --orange-dim:rgba(255,159,28,0.12);
+  --red:#ff5555;
+  --red-dim:rgba(255,85,85,0.12);
+  --purple:#bf9aff;
+  --purple-dim:rgba(191,154,255,0.12);
+  --yellow:#ffe566;
+  --r:10px;
+  --r2:16px;
+  --r3:24px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{
+  font-family:'Fredoka',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── FLOATING BG BLOBS ── */
+.blob-wrap{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.blob{
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:0.06;
+  animation:blobFloat 12s ease-in-out infinite alternate;
+}
+.blob1{width:500px;height:500px;background:var(--lime);top:-100px;left:-100px;animation-delay:0s}
+.blob2{width:400px;height:400px;background:var(--pink);top:40%;right:-80px;animation-delay:-4s}
+.blob3{width:350px;height:350px;background:var(--cyan);bottom:-80px;left:30%;animation-delay:-8s}
+@keyframes blobFloat{
+  0%{transform:translate(0,0) scale(1)}
+  100%{transform:translate(30px,20px) scale(1.08)}
+}
+
+/* ── HEADER ── */
+.header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(13,17,23,0.85);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-pill{
+  background:linear-gradient(135deg,var(--lime),#5fff8a);
+  color:#0d1117;
+  font-size:12px;font-weight:700;
+  padding:4px 10px;border-radius:100px;
+  letter-spacing:0.04em;
+  animation:logoPulse 3s ease-in-out infinite;
+}
+@keyframes logoPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(168,255,62,0.4)}
+  50%{box-shadow:0 0 0 8px rgba(168,255,62,0)}
+}
+.logo-name{font-size:15px;font-weight:600;color:var(--text)}
+.logo-name span{color:var(--lime)}
+.header-right{display:flex;align-items:center;gap:12px}
+.hdr-badge{
+  font-size:11px;color:var(--muted);
+  font-family:'DM Mono',monospace;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  padding:3px 8px;border-radius:100px;
+}
+
+/* ── LAYOUT ── */
+.layout{display:flex;min-height:calc(100vh - 56px);position:relative;z-index:1}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:230px;min-width:230px;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  padding:20px 0;
+}
+.sb-section{margin-bottom:6px}
+.sb-label{
+  font-size:10px;font-weight:600;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--muted);
+  padding:10px 18px 4px;opacity:0.6;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 18px;cursor:pointer;
+  font-size:14px;font-weight:500;color:var(--muted);
+  border-radius:0;transition:all 0.15s;
+  border-left:3px solid transparent;
+  position:relative;
+}
+.nav-item:hover{color:var(--text);background:var(--surface2)}
+.nav-item.active{
+  color:var(--lime);background:var(--lime-dim2);
+  border-left-color:var(--lime);
+}
+.nav-item.active .nav-icon-wrap{transform:scale(1.15) rotate(-5deg)}
+.nav-icon-wrap{
+  width:28px;height:28px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:transform 0.2s;
+  background:var(--surface3);flex-shrink:0;
+}
+.nav-item.active .nav-icon-wrap{background:var(--lime-dim);color:var(--lime)}
+.nav-item:hover:not(.active) .nav-icon-wrap{transform:scale(1.1)}
+
+.sb-footer{
+  margin-top:auto;padding:16px 18px;
+  border-top:1px solid var(--border);
+}
+.sb-footer-text{font-size:11px;color:var(--muted);line-height:1.7;font-family:'DM Mono',monospace;opacity:0.5}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-x:hidden;display:flex;flex-direction:column}
+.topbar{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:14px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;
+}
+.page-title{font-size:18px;font-weight:700;color:var(--text)}
+.page-sub{font-size:12px;color:var(--muted);margin-top:1px;font-family:'DM Mono',monospace}
+.topbar-btns{display:flex;gap:8px}
+.content{padding:24px 28px;flex:1}
+
+/* ── SCREENS ── */
+.screen{display:none}
+.screen.active{
+  display:block;
+  animation:screenIn 0.25s ease both;
+}
+@keyframes screenIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARDS ── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r2);
+  padding:20px 22px;
+  transition:border-color 0.2s;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--lime-dim2),transparent);
+  opacity:0;transition:opacity 0.3s;
+}
+.card:hover::before{opacity:1}
+.card+.card{margin-top:14px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;font-family:'DM Mono',monospace}
+
+/* ── FORMS ── */
+label{
+  font-size:11px;font-weight:600;letter-spacing:0.06em;
+  text-transform:uppercase;color:var(--muted);
+  display:block;margin-bottom:5px;
+}
+input[type=text],input[type=password],select,textarea{
+  width:100%;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  color:var(--text);
+  font-family:'Fredoka',sans-serif;
+  font-size:14px;font-weight:400;
+  padding:9px 13px;
+  outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s,background 0.15s;
+}
+input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{
+  border-color:var(--lime);
+  background:var(--surface3);
+  box-shadow:0 0 0 3px rgba(168,255,62,0.1);
+}
+textarea{
+  resize:vertical;min-height:190px;
+  font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;
+}
+select option{background:var(--surface2)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-group{margin-bottom:12px}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 18px;border-radius:100px;
+  border:1px solid var(--border2);
+  background:var(--surface2);color:var(--text);
+  font-family:'Fredoka',sans-serif;font-size:14px;font-weight:500;
+  cursor:pointer;transition:all 0.15s;white-space:nowrap;
+}
+.btn:hover{background:var(--surface3);border-color:var(--border2);transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(0.97)}
+.btn-primary{
+  background:var(--lime);border-color:var(--lime);
+  color:#0d1117;font-weight:700;
+}
+.btn-primary:hover{background:#c1ff5a;border-color:#c1ff5a;box-shadow:0 4px 20px rgba(168,255,62,0.35)}
+.btn-primary:active{transform:scale(0.97)}
+.btn-sm{padding:6px 14px;font-size:13px}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn-ghost:hover{background:var(--surface2);border-color:var(--border);color:var(--text)}
+.btn-danger{border-color:rgba(255,85,85,0.4);color:var(--red)}
+.btn-danger:hover{background:var(--red-dim);border-color:var(--red)}
+
+/* ── BADGES ── */
+.badge{
+  display:inline-flex;align-items:center;
+  font-size:12px;font-weight:600;
+  padding:2px 9px;border-radius:100px;
+}
+.b-lime{background:var(--lime-dim);color:var(--lime)}
+.b-pink{background:var(--pink-dim);color:var(--pink)}
+.b-cyan{background:var(--cyan-dim);color:var(--cyan)}
+.b-orange{background:var(--orange-dim);color:var(--orange)}
+.b-red{background:var(--red-dim);color:var(--red)}
+.b-purple{background:var(--purple-dim);color:var(--purple)}
+.b-gray{background:var(--surface3);color:var(--muted)}
+.b-yellow{background:rgba(255,229,102,0.12);color:var(--yellow)}
+
+/* ── STATS ── */
+.stat{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r2);
+  padding:16px 18px;
+  transition:transform 0.2s,border-color 0.2s;
+}
+.stat:hover{transform:translateY(-2px);border-color:var(--border2)}
+.stat-n{font-size:32px;font-weight:700;line-height:1;margin-bottom:4px}
+.stat-l{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)}
+
+/* ── SCORE RING ── */
+.score-hero{display:flex;align-items:center;gap:24px;margin-bottom:22px}
+.ring-wrap{position:relative;width:100px;height:100px;flex-shrink:0}
+.ring-wrap svg{width:100px;height:100px}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-n{font-size:28px;font-weight:700;line-height:1}
+.ring-d{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* ── RUBRIC ── */
+.rub-section{margin-bottom:10px;border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color 0.2s}
+.rub-section:hover{border-color:var(--border2)}
+.rub-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;background:var(--surface2);
+  cursor:pointer;transition:background 0.12s;
+  gap:12px;
+}
+.rub-head:hover{background:var(--surface3)}
+.rub-head.open{background:var(--surface);border-bottom:1px solid var(--border)}
+.rub-name{font-size:13px;font-weight:600;color:var(--text)}
+.rub-meta{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.rub-body{display:none;background:var(--surface)}
+.rub-body.open{display:block}
+.crit-row{
+  display:grid;grid-template-columns:1fr auto;
+  gap:14px;align-items:center;
+  padding:10px 16px;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+  transition:background 0.1s;
+}
+.crit-row:last-child{border-bottom:none}
+.crit-row:hover{background:rgba(255,255,255,0.02)}
+.crit-text{color:var(--muted);line-height:1.5;font-size:12px}
+.crit-pills{display:flex;gap:4px}
+.pill{
+  width:28px;height:28px;border-radius:8px;
+  border:1px solid var(--border2);background:transparent;
+  color:var(--muted);font-size:12px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all 0.12s;font-family:'DM Mono',monospace;
+}
+.pill:hover{border-color:var(--text);color:var(--text);transform:scale(1.15)}
+.pill:active{transform:scale(0.9)}
+.pill.s0{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+.pill.s1{background:var(--orange-dim);border-color:var(--orange);color:var(--orange)}
+.pill.s2{background:rgba(255,229,102,0.12);border-color:var(--yellow);color:var(--yellow)}
+.pill.s3{background:var(--cyan-dim);border-color:var(--cyan);color:var(--cyan)}
+.pill.s4{background:var(--lime-dim);border-color:var(--lime);color:var(--lime)}
+.pill.sna{background:var(--surface3);border-color:var(--border2);color:var(--muted);font-size:8px}
+
+/* ── PROGRESS BAR ── */
+.bar{height:4px;background:var(--surface3);border-radius:100px;overflow:hidden}
+.bar-f{height:100%;border-radius:100px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+
+/* ── OBS BLOCKS ── */
+.obs{
+  padding:13px 16px;border-radius:var(--r);margin-bottom:8px;
+  border-left:3px solid;
+}
+.obs.good{background:var(--lime-dim2);border-color:var(--lime)}
+.obs.fair{background:rgba(255,229,102,0.06);border-color:var(--yellow)}
+.obs.bad{background:var(--red-dim);border-color:var(--red)}
+.obs-lbl{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
+.obs.good .obs-lbl{color:var(--lime)}
+.obs.fair .obs-lbl{color:var(--yellow)}
+.obs.bad .obs-lbl{color:var(--red)}
+.obs-item{font-size:12px;padding:2px 0;line-height:1.5}
+
+/* ── QUOTE BLOCKS ── */
+.qblock{
+  background:var(--surface2);border-left:3px solid var(--border2);
+  padding:10px 14px;border-radius:0 var(--r) var(--r) 0;
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--muted);margin:8px 0;line-height:1.7;
+}
+.qsuggest{
+  background:var(--lime-dim2);border-left:3px solid var(--lime);
+  padding:10px 14px;border-radius:0 var(--r) var(--r) 0;
+  font-size:12px;color:var(--lime);margin:6px 0;line-height:1.6;
+  font-style:italic;
+}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{
+  padding:8px 12px;text-align:left;
+  font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--muted);border-bottom:1px solid var(--border);
+  background:var(--surface2);
+}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+td.td-main{color:var(--text);font-weight:500}
+
+/* ── HISTORY ROWS ── */
+.hist-row{
+  display:flex;align-items:center;gap:14px;
+  padding:13px 16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r2);
+  margin-bottom:8px;cursor:pointer;
+  transition:all 0.15s;
+}
+.hist-row:hover{border-color:var(--lime);transform:translateX(3px);background:var(--surface2)}
+.hist-name{font-size:14px;font-weight:600;flex:1}
+.hist-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px}
+
+/* ── CALLOUT ── */
+.callout{
+  padding:12px 16px;border-radius:var(--r);
+  font-size:13px;line-height:1.7;margin-bottom:14px;
+  border:1px solid;
+}
+.c-lime{background:var(--lime-dim2);border-color:rgba(168,255,62,0.2);color:#86efac}
+.c-cyan{background:var(--cyan-dim);border-color:rgba(62,240,255,0.2);color:var(--cyan)}
+.c-orange{background:var(--orange-dim);border-color:rgba(255,159,28,0.2);color:var(--orange)}
+
+/* ── LOADING OVERLAY ── */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(13,17,23,0.92);
+  backdrop-filter:blur(12px);
+  z-index:200;
+  flex-direction:column;align-items:center;justify-content:center;gap:20px;
+}
+.overlay.show{display:flex}
+.ov-ring{
+  width:64px;height:64px;
+  border:3px solid var(--surface3);
+  border-top-color:var(--lime);
+  border-right-color:var(--cyan);
+  border-radius:50%;
+  animation:spin 0.9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ov-txt{font-size:18px;font-weight:600;color:var(--text)}
+.ov-sub{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
+.ov-dots{display:flex;gap:6px;margin-top:4px}
+.ov-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--lime);
+  animation:dotBounce 1.2s ease-in-out infinite;
+}
+.ov-dot:nth-child(2){animation-delay:.2s;background:var(--cyan)}
+.ov-dot:nth-child(3){animation-delay:.4s;background:var(--pink)}
+@keyframes dotBounce{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1.2);opacity:1}}
+
+/* ── NOTIFICATION ── */
+.notif{
+  display:none;position:fixed;bottom:24px;right:24px;
+  padding:12px 20px;
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:100px;font-size:14px;font-weight:500;
+  color:var(--text);z-index:300;
+  animation:notifIn .25s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes notifIn{from{opacity:0;transform:translateY(10px) scale(0.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.notif.good{border-color:var(--lime);color:var(--lime)}
+.notif.bad{border-color:var(--red);color:var(--red)}
+
+/* ── CONFETTI ── */
+.confetti-piece{
+  position:fixed;top:-20px;
+  width:10px;height:10px;
+  border-radius:2px;
+  pointer-events:none;z-index:400;
+  animation:confettiFall linear forwards;
+}
+@keyframes confettiFall{
+  0%{transform:translateY(0) rotate(0deg) scale(1);opacity:1}
+  100%{transform:translateY(100vh) rotate(720deg) scale(0.5);opacity:0}
+}
+
+/* ── SCORE COUNTER ANIMATION ── */
+@keyframes scoreCount{
+  from{transform:scale(1.4);color:var(--lime)}
+  to{transform:scale(1);color:inherit}
+}
+.score-pop{animation:scoreCount 0.5s cubic-bezier(.34,1.56,.64,1) both}
+
+/* ── PILL SELECT EFFECT ── */
+@keyframes pillPop{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.35)}
+  100%{transform:scale(1)}
+}
+.pill-popping{animation:pillPop .2s ease both}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-ico{font-size:40px;margin-bottom:14px;display:block;animation:emptyBob 2s ease-in-out infinite}
+@keyframes emptyBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.empty-t{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px}
+.empty-s{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* ── DIVIDER ── */
+hr{border:none;border-top:1px solid var(--border);margin:18px 0}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.flex{display:flex}.ic{align-items:center}.jb{justify-content:space-between}
+.gap6{gap:6px}.gap10{gap:10px}.gap14{gap:14px}
+.mb6{margin-bottom:6px}.mb10{margin-bottom:10px}.mb14{margin-bottom:14px}.mb20{margin-bottom:20px}
+.mt10{margin-top:10px}.mt14{margin-top:14px}
+.tx-m{color:var(--muted)}.tx-s{font-size:12px}.tx-xs{font-size:11px}
+.tx-mono{font-family:'DM Mono',monospace}.fw7{font-weight:700}
+
+/* ── WIGGLE ON HOVER ── */
+.wiggle:hover{animation:wiggle .4s ease}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-5deg)}75%{transform:rotate(5deg)}}
+
+/* ── EVALUATE BTN SPECIAL ── */
+.btn-evaluate{
+  background:linear-gradient(135deg,var(--lime),var(--cyan));
+  border:none;color:#0d1117;font-size:15px;font-weight:700;
+  padding:12px 28px;border-radius:100px;
+  box-shadow:0 4px 24px rgba(168,255,62,0.25);
+  transition:all 0.2s;cursor:pointer;
+  font-family:'Fredoka',sans-serif;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-evaluate:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(168,255,62,0.4);
+}
+.btn-evaluate:active{transform:scale(0.97)}
+.btn-evaluate .btn-arrow{
+  display:inline-block;
+  transition:transform 0.2s;
+}
+.btn-evaluate:hover .btn-arrow{transform:translateX(3px)}
+
+@media print{
+  .sidebar,.header,.topbar,button,.btn,.overlay,.notif,.blob-wrap,.confetti-piece{display:none!important}
+  .layout{display:block}
+  body{background:#fff;color:#000}
+  .screen{display:block!important}
+  #screen-evaluate,#screen-manual,#screen-history,#screen-settings{display:none!important}
+  .card{background:#fff;border:1px solid #ddd}
+  .surface,.surface2,.surface3{background:#fff}
+  .text,.tx-m{color:#000}
+}
+</style>
+</head>
+<body>
+
+<!-- FLOATING BG -->
+<div class="blob-wrap">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <span class="logo-pill wiggle">YW</span>
+    <span class="logo-name">YourWay <span>QA</span></span>
+  </div>
+  <div class="header-right">
+    <span class="hdr-badge">internal tool · v1.0</span>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Evaluate</div>
+    <div class="nav-item active" onclick="go('evaluate')">
+      <div class="nav-icon-wrap">🎙️</div>
+      AI Evaluation
+    </div>
+    <div class="nav-item" onclick="go('manual')">
+      <div class="nav-icon-wrap">✏️</div>
+      Manual Scoring
+    </div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Reports</div>
+    <div class="nav-item" onclick="go('report')">
+      <div class="nav-icon-wrap">📊</div>
+      Last Report
+    </div>
+    <div class="nav-item" onclick="go('history')">
+      <div class="nav-icon-wrap">🕐</div>
+      History
+    </div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Admin</div>
+    <div class="nav-item" onclick="go('settings')">
+      <div class="nav-icon-wrap">⚙️</div>
+      Settings
+    </div>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-footer-text">Built for Kianna<br>April 2026 ✨</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="ptitle">AI Evaluation</div>
+      <div class="page-sub" id="psub">paste a transcript → get a full score + coaching report</div>
+    </div>
+    <div class="topbar-btns" id="topbar-btns"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ AI EVALUATE ══ -->
+    <div class="screen active" id="screen-evaluate">
+      <div class="callout c-cyan mb20">
+        💡 Paste your Otter.ai transcript below. Claude will detect the call type, score every criterion, and write coaching notes directly to the agent.
+      </div>
+
+      <div class="card">
+        <div class="form-row">
+          <div><label>Agent Name</label><input type="text" id="e-agent" placeholder="e.g. Sarah Chen"></div>
+          <div><label>Location</label>
+            <select id="e-loc">
+              <option value="">— pick a location —</option>
+              <option value="walton">🏢 Walton Way — Augusta, GA</option>
+              <option value="berkshire">🏢 Berkshire Drive — Columbia, SC</option>
+              <option value="mckinley">🏢 McKinley Ave — Pocatello, ID</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div><label>Call Date</label><input type="text" id="e-date" placeholder="2026-04-21"></div>
+          <div><label>Call Type (optional — auto-detected)</label>
+            <select id="e-type">
+              <option value="">🤖 Auto-detect</option>
+              <option value="New Rental Inquiry">New Rental Inquiry</option>
+              <option value="Billing & Payments">Billing &amp; Payments</option>
+              <option value="Move-Out / Cancellation">Move-Out / Cancellation</option>
+              <option value="Complaint / Dispute">Complaint / Dispute</option>
+              <option value="General Info / Lead Capture">General Info / Lead Capture</option>
+              <option value="Lien / Delinquency">Lien / Delinquency</option>
+              <option value="Move-In Processing">Move-In Processing</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="flex jb ic mb6">
+            <label style="margin:0">Transcript (from Otter.ai)</label>
+            <div class="flex gap6">
+              <button class="btn btn-sm btn-ghost" onclick="loadSample()">📋 load sample</button>
+              <button class="btn btn-sm btn-ghost" onclick="document.getElementById('e-transcript').value=''">🗑 clear</button>
+            </div>
+          </div>
+          <textarea id="e-transcript" placeholder="[00:00] Agent: Thank you for calling YourWay Storage...&#10;[00:04] Caller: Hi, I need a storage unit..."></textarea>
+        </div>
+
+        <div class="flex ic gap10">
+          <button class="btn-evaluate" onclick="runEval()">
+            <span>✨ Evaluate Call</span>
+            <span class="btn-arrow">→</span>
+          </button>
+          <span class="tx-xs tx-m tx-mono">~30–60 sec · powered by Claude</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MANUAL ══ -->
+    <div class="screen" id="screen-manual">
+      <div class="card mb14">
+        <div class="form-row" style="margin:0">
+          <div><label>Agent Name</label><input type="text" id="m-agent" placeholder="e.g. Mike Reyes"></div>
+          <div><label>Call Type</label>
+            <select id="m-type" onchange="buildManual()">
+              <option value="">— select call type —</option>
+              <option value="0">📞 New Rental Inquiry</option>
+              <option value="1">💳 Billing &amp; Payments</option>
+              <option value="2">📦 Move-Out / Cancellation</option>
+              <option value="3">😤 Complaint / Dispute</option>
+              <option value="4">📝 General Info / Lead Capture</option>
+              <option value="5">⚠️ Lien / Delinquency</option>
+              <option value="6">🔑 Move-In Processing</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="m-rubric">
+        <div class="empty">
+          <span class="empty-ico">🎯</span>
+          <div class="empty-t">Select a call type to start scoring</div>
+          <div class="empty-s">rubric will appear here</div>
+        </div>
+      </div>
+
+      <div id="m-foot" style="display:none">
+        <hr>
+        <div class="flex ic jb">
+          <div>
+            <div class="tx-xs tx-m mb6">calculated score</div>
+            <div style="font-size:40px;font-weight:700;color:var(--lime)" id="m-score-out">—</div>
+          </div>
+          <div class="flex gap10">
+            <button class="btn btn-ghost" onclick="resetManual()">🔄 reset</button>
+            <button class="btn btn-primary" onclick="saveManual()">💾 save report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ REPORT ══ -->
+    <div class="screen" id="screen-report">
+      <div id="report-out">
+        <div class="empty">
+          <span class="empty-ico">🏆</span>
+          <div class="empty-t">No report yet</div>
+          <div class="empty-s">run an evaluation to see results</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ HISTORY ══ -->
+    <div class="screen" id="screen-history">
+      <div id="hist-out"></div>
+    </div>
+
+    <!-- ══ SETTINGS ══ -->
+    <div class="screen" id="screen-settings">
+      <div class="card mb14">
+        <div class="card-title">🔑 Claude API Key</div>
+        <div class="card-sub">Required for AI evaluation. Stored only in your browser.</div>
+        <div class="flex gap10 ic">
+          <input type="password" id="s-key" placeholder="sk-ant-..." style="flex:1">
+          <button class="btn btn-primary" onclick="saveKey()">Save</button>
+          <button class="btn btn-ghost" onclick="testKey()">Test</button>
+        </div>
+        <div id="key-status" class="tx-xs tx-m mt10 tx-mono"></div>
+      </div>
+
+      <div class="card mb14">
+        <div class="card-title">📌 Custom Must-Say Phrases</div>
+        <div class="card-sub">Claude checks these on every AI evaluation.</div>
+        <div id="phrases-out" class="mb14"></div>
+        <div class="flex gap10">
+          <input type="text" id="s-phrase" placeholder='e.g. "No contracts, month-to-month"' style="flex:1">
+          <button class="btn btn-primary" onclick="addPhrase()">Add</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">ℹ️ About</div>
+        <div class="tx-s tx-m tx-mono" style="line-height:2.2">
+          YourWay Storage Call Evaluator · v1.0 ✨<br>
+          Built for Kianna · April 2026<br>
+          AI: Claude claude-sonnet-4-20250514<br>
+          7 call types · 0–4 per criterion · 1–100 score
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="ov-ring"></div>
+  <div class="ov-txt" id="ov-txt">Evaluating call…</div>
+  <div class="ov-sub" id="ov-sub">reading transcript</div>
+  <div class="ov-dots">
+    <div class="ov-dot"></div>
+    <div class="ov-dot"></div>
+    <div class="ov-dot"></div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// ══════════════════════════════════════
+// RUBRICS (full data preserved)
+// ══════════════════════════════════════
+const RUBRICS=[
+{name:'New Rental Inquiry',canReview:true,canMoveIn:true,sections:[
+  {id:'s01',name:'Opening & Name Capture',weight:10,criteria:['Asked for customer\'s name at the very start of the call','Used the customer\'s name throughout the conversation','Greeted warmly with full name and "YourWay Storage"']},
+  {id:'s02',name:'Needs Discovery',weight:15,criteria:['Asked why they need storage (moving, downsizing, remodel, business, etc.)','Asked what they need to store (furniture, boxes, vehicle, business inventory)','Asked when they need the unit (move-in timeline / urgency)']},
+  {id:'s03',name:'Unit Size Recommendation',weight:10,criteria:['Recommended the right unit size based on items described — OR — accepted customer\'s stated size without pushing if they already knew what they wanted','Gave dimensions AND a real-world comparison (e.g. "fits a 1-bedroom apartment")','Explained the right unit type for the location (climate, smart, drive-up)']},
+  {id:'s04',name:'Protection Plan',weight:15,criteria:['Offered the protection plan proactively — did not wait to be asked','Started with the $17/mo ($3,500 coverage) tier as the default offer','Explained zero deductible and coverage benefits clearly','Only stepped down to $13/mo ($2,500) if tenant objected that items aren\'t worth that much — never opened with the lowest tier','Held firm through at least one objection before considering own-insurance — never offered own insurance casually or as a first alternative','Own insurance mentioned only after multiple objections as absolute last resort']},
+  {id:'s05',name:'Pricing, Promo & Admin Fee',weight:15,criteria:['Explained the promotional rate clearly (50% off first month, ends April 30)','Explained the standard rate (what they pay after promo ends)','Clearly communicated the admin fee','Move-in cost was clearly explained (promo rate + admin fee + PP if applicable)']},
+  {id:'s06',name:'Facility Features & Access',weight:10,criteria:['Mentioned access hours and office hours','Highlighted facility features relevant to the customer','Walton: highlighted fully climate-controlled + Nokē smart facility access','Berkshire: highlighted fully smart units + drive-up + climate-controlled','McKinley: clarified mix of regular and smart units, smart = climate-controlled, 24-hr access area']},
+  {id:'s07',name:'Objection Handling & Close',weight:15,criteria:['If customer was shopping around — pushed for reservation and explained price/promo not guaranteed next time','Explained reservation requires no credit card and takes 3 minutes','Asked to book or reserve on the call','Confirmed next step before ending the call']},
+  {id:'s08',name:'Phone & Email Capture',weight:10,criteria:['Verified/captured phone number — early in call','Captured email address — acceptable if collected toward latter part of call','Info collected naturally without being robotic']},
+]},
+{name:'Billing & Payments',canReview:true,canMoveIn:false,sections:[
+  {id:'s01',name:'Greeting & Verification',weight:20,criteria:['Asked for customer\'s name at the start','Verified customer identity before accessing account','Used customer name throughout']},
+  {id:'s02',name:'Empathy',weight:20,criteria:['Acknowledged customer frustration without defensiveness','Did not interrupt while customer explained','Maintained calm, warm tone even if customer was upset']},
+  {id:'s03',name:'Policy Knowledge',weight:25,criteria:['Explained billing policy accurately','Stated late fee policy correctly','Did not make promises that contradict policy','Explained rate increase process correctly if applicable']},
+  {id:'s04',name:'Resolution',weight:25,criteria:['Resolved the issue or escalated appropriately','Confirmed action being taken','Gave clear timeline for any follow-up']},
+  {id:'s05',name:'Wrap-Up',weight:10,criteria:['Summarized outcome before ending','Asked if anything else needed','Ended professionally']},
+]},
+{name:'Move-Out / Cancellation',canReview:true,canMoveIn:false,sections:[
+  {id:'s01',name:'Greeting & Empathy',weight:15,criteria:['Asked for name at start, used it throughout','Acknowledged move-out without making customer feel guilty']},
+  {id:'s02',name:'Reason Discovery',weight:20,criteria:['Asked why the customer is moving out','Listened without interrupting','Identified if reason is fixable']},
+  {id:'s03',name:'Retention Attempt',weight:25,criteria:['Made a genuine retention attempt','Offered relevant solution','Did not pressure or guilt the customer','Respected decision if customer was firm']},
+  {id:'s04',name:'Move-Out Procedure',weight:30,criteria:['Explained move-out process clearly','Confirmed move-out date','Explained unit must be emptied and lock left open','Confirmed final bill process']},
+  {id:'s05',name:'Goodwill Close',weight:10,criteria:['Thanked customer for their business','Left door open for future rentals','Ended warmly']},
+]},
+{name:'Complaint / Dispute',canReview:false,canMoveIn:false,sections:[
+  {id:'s01',name:'Greeting & Listening',weight:20,criteria:['Asked for name and used it','Let customer fully explain without interrupting','Did not get defensive']},
+  {id:'s02',name:'Empathy',weight:25,criteria:['Validated frustration explicitly','Apologized appropriately','Maintained calm, caring tone throughout']},
+  {id:'s03',name:'Fact-Finding',weight:25,criteria:['Asked clarifying questions','Did not make assumptions','Confirmed details back to customer']},
+  {id:'s04',name:'Resolution / Escalation',weight:20,criteria:['Offered solution or clear escalation path','Explained what happens next and by when','Did not make unauthorized promises']},
+  {id:'s05',name:'Close',weight:10,criteria:['Confirmed next steps before ending','Ended professionally']},
+]},
+{name:'General Info / Lead Capture',canReview:true,canMoveIn:false,sections:[
+  {id:'s01',name:'Opening & Name Capture',weight:15,criteria:['Asked for customer\'s name right away','Used it throughout the call','Greeted with name and YourWay Storage']},
+  {id:'s02',name:'Info Sharing',weight:20,criteria:['Answered questions accurately','Proactively mentioned 50% off promo and deadline','Mentioned key differentiators (no contracts, smart access, climate control)']},
+  {id:'s03',name:'Soft Discovery',weight:20,criteria:['Asked what they need to store and why','Asked about their timeline','Asked which location is nearest']},
+  {id:'s04',name:'Phone & Email Capture',weight:20,criteria:['Captured phone number early in the call','Captured email toward end of call naturally']},
+  {id:'s05',name:'Lead Push & Close',weight:25,criteria:['Pushed for reservation if customer was shopping around','Explained price/promo not guaranteed next time','Offered to hold unit with no credit card needed','Set clear next step before ending the call']},
+]},
+{name:'Lien / Delinquency',canReview:false,canMoveIn:false,sections:[
+  {id:'s01',name:'Greeting & Verification',weight:15,criteria:['Asked for name, verified identity','Professional tone from the first word']},
+  {id:'s02',name:'Compliance & Disclosures',weight:35,criteria:['Stated lien/delinquency policy accurately','No unauthorized promises about waiving fees','All required disclosures communicated','No threatening or inappropriate language']},
+  {id:'s03',name:'Empathy',weight:20,criteria:['Acknowledged situation with compassion','Did not lecture or shame','Stayed calm under stress']},
+  {id:'s04',name:'Resolution Path',weight:20,criteria:['Explained options clearly','Gave specific payment deadlines','Confirmed next steps']},
+  {id:'s05',name:'Close',weight:10,criteria:['Summarized outcome clearly','Ended professionally']},
+]},
+{name:'Move-In Processing',canReview:true,canMoveIn:false,sections:[
+  {id:'s01',name:'Greeting & Confirmation',weight:15,criteria:['Asked for name, confirmed reservation and unit','Used customer name throughout']},
+  {id:'s02',name:'Agreement Walk-Through',weight:25,criteria:['Walked through rental agreement key points','Confirmed billing date and amount','Explained access hours and how to enter','Explained Nokē smart access','Confirmed month-to-month terms']},
+  {id:'s03',name:'Move-In Data Capture',weight:30,criteria:['Captured DL state','Captured DL number','Captured date of birth','Captured alternate contact first + last name','Captured alternate contact phone number']},
+  {id:'s04',name:'Protection Plan & Payment',weight:20,criteria:['Offered protection plan proactively with zero deductible benefit explained','Started with $17/mo ($3,500) as the default — not the lowest tier','Only stepped down to $13/mo ($2,500) if tenant objected that items aren\'t worth more','Own insurance raised only after multiple objections as absolute last resort — never as a casual alternative','Confirmed payment method on file','Confirmed first payment processed']},
+  {id:'s05',name:'Close',weight:10,criteria:['Confirmed move-in date and access','Asked if any final questions','Ended warmly and professionally']},
+]},
+];
+
+const LOC_INFO={
+  walton:'Walton Way Ext, Augusta GA — Fully climate-controlled · Nokē smart facility access · Interior units',
+  berkshire:'Berkshire Drive, Columbia SC — All smart units · Drive-up access · Climate-controlled',
+  mckinley:'McKinley Avenue, Pocatello ID — Mix of regular and smart units · Smart units = climate-controlled · 24-hr access area available',
+};
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let mScores={},mType=null,lastReport=null;
+let history=JSON.parse(localStorage.getItem('yw_hist')||'[]');
+let phrases=JSON.parse(localStorage.getItem('yw_phrases')||'[]');
+
+// ══════════════════════════════════════
+// NAV
+// ══════════════════════════════════════
+const PAGE_META={
+  evaluate:['AI Evaluation','paste a transcript → get a full score + coaching report'],
+  manual:['Manual Scoring','click 0–4 per criterion, score calculates live'],
+  report:['Last Report','most recent evaluation scorecard'],
+  history:['History','all saved evaluations'],
+  settings:['Settings','api key, custom phrases'],
+};
+function go(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+name+"'")) n.classList.add('active');
+  });
+  const m=PAGE_META[name]||[name,''];
+  document.getElementById('ptitle').textContent=m[0];
+  document.getElementById('psub').textContent=m[1];
+  const tbb=document.getElementById('topbar-btns');tbb.innerHTML='';
+  if(name==='report'&&lastReport){
+    const b=document.createElement('button');
+    b.className='btn btn-sm';b.innerHTML='🖨 export pdf';b.onclick=()=>window.print();
+    const b2=document.createElement('button');
+    b2.className='btn btn-sm btn-ghost';b2.innerHTML='📋 copy';b2.onclick=copyReport;
+    tbb.append(b,b2);
+  }
+  if(name==='history') renderHistory();
+  if(name==='settings') renderSettings();
+}
+
+// ══════════════════════════════════════
+// AI EVAL
+// ══════════════════════════════════════
+async function runEval(){
+  const key=localStorage.getItem('yw_key');
+  if(!key){showNotif('⚙️ Add API key in Settings first','bad');go('settings');return;}
+  const agent=document.getElementById('e-agent').value.trim()||'Unknown Agent';
+  const loc=document.getElementById('e-loc').value;
+  const date=document.getElementById('e-date').value.trim()||new Date().toISOString().split('T')[0];
+  const typeHint=document.getElementById('e-type').value;
+  const tx=document.getElementById('e-transcript').value.trim();
+  if(!tx){showNotif('📋 Paste a transcript first','bad');return;}
+
+  showOv('Reading transcript…','classifying call type');
+  const msgs=[
+    ['Classifying call type…','matching to one of 7 rubrics'],
+    ['Scoring each criterion…','going through all sections'],
+    ['Checking protection plan…','pp offer, pricing, firmness'],
+    ['Checking promo & pricing…','admin fee, promo, post-promo rate'],
+    ['Checking facility features…','access hours, unit types, smart access'],
+    ['Writing coaching notes…','drafting observations & suggestions'],
+  ];
+  let mi=0;
+  const iv=setInterval(()=>{mi=(mi+1)%msgs.length;document.getElementById('ov-txt').textContent=msgs[mi][0];document.getElementById('ov-sub').textContent=msgs[mi][1];},3200);
+
+  const locNote=loc?`\n\nLOCATION: ${LOC_INFO[loc]}`:'';
+  const phraseNote=phrases.length?`\n\nCUSTOM MUST-SAY PHRASES:\n${phrases.map((p,i)=>`${i+1}. "${p}"`).join('\n')}`:'';
+  const typeNote=typeHint?`\n\nCALL TYPE HINT: ${typeHint}`:'';
+
+  const sys=`You are a strict but fair call quality evaluator for YourWay Storage. Write coaching directly to the agent.
+
+YOURWAY FACTS:
+Locations:
+• Walton Way Ext, Augusta GA — fully climate-controlled, Nokē smart facility access
+• Berkshire Drive, Columbia SC — all smart units, drive-up access, climate-controlled
+• McKinley Avenue, Pocatello ID — mix of regular + smart units; smart = climate-controlled; 24-hr access area
+
+Promo rates (50% off first month, ends April 30):
+5x5: $20/mo | 5x10: $28/mo | 10x10: $60-73/mo | 10x15: $89-105/mo | 10x20: $132/mo | 10x30: $195/mo
+
+Protection Plans (ZERO deductible — agent must offer firmly):
+• $13/mo = $2,500 coverage
+• $17/mo = $3,500 coverage
+• $25/mo = $5,000 coverage
+Own insurance = last resort only.
+
+Access hours: 6am–10pm daily | Office: Mon-Sat 9am–8pm, Sun 9am–5pm
+No contracts, month-to-month | Online reservation: no credit card, 3 min
+
+SCORING: 0=missed | 1=poor attempt | 2=fair/partial | 3=good | 4=excellent | null=N/A
+
+CALL TYPES: 1.New Rental Inquiry 2.Billing&Payments 3.Move-Out/Cancellation 4.Complaint/Dispute(NO review) 5.General Info/Lead Capture 6.Lien/Delinquency(NO review) 7.Move-In Processing
+
+§06 Review: positive calls only, weight 10%
+§07 Move-In Compliance: Rubric 1 only when rented on call, weight 15%
+
+MATH: avg section scores → pct=(avg/4)*100 → weighted=pct*weight% → sum all = final (min 1)
+
+PP STANDARD (critical — score strictly):
+• Agent MUST open with $17/mo ($3,500 coverage) as the default — never start with the lowest tier
+• If tenant objects that their items aren't worth that much → agent may step down to $13/mo ($2,500). This step-down is acceptable.
+• Own insurance: ONLY raised after MULTIPLE objections, as absolute last resort. Offering it casually or as a first alternative = score 0 on that criterion.
+• Scoring: 4 = opened $17, held firm, stepped down correctly only when needed. 3 = opened $17, reasonable handling. 2 = opened with wrong tier OR caved too fast. 1 = barely attempted. 0 = skipped PP or opened with own insurance immediately.
+PROMO: Must explain promo rate + deadline + post-promo rate. Missing any = docked.
+ADMIN FEE: Must be explicitly mentioned.
+NAME: Ask early, use throughout.
+PHONE: Capture early. EMAIL: Can be later.
+SHOPPING: Must push reservation + explain prices change.
+SIZE: If customer knows size, agent doesn't need to push one — give credit.
+
+PII: Never include full DL, DOB, SSN, financial data.
+VOICE: Write directly to agent (you/your). Warm, direct, specific. No fluff.${locNote}${phraseNote}${typeNote}
+
+Respond ONLY with valid JSON, no markdown:
+{"call_type":"string","call_type_num":1,"location_used":"walton|berkshire|mckinley|unknown","classification_confidence":"high|medium|low","overall_score":85,"grade":"A","grade_label":"string","section_scores":[{"id":"s01","name":"string","weight":10,"avg_score":3.5,"pct":87.5,"weighted":8.75,"criteria_scores":[{"text":"string","score":4,"note":"string"}]}],"review_applied":false,"movein_applied":false,"review_section":null,"movein_section":null,"did_well":["string"],"fairly_well":["string"],"needs_work":["string"],"pp_note":"string","promo_note":"string","key_quote_good":"string","key_quote_improve":"string","better_phrase":"string","summary":"string","custom_phrases_check":[{"phrase":"string","found":true,"note":"string"}],"qa_contact_captured":"all|partial|none","qa_pp_offered":"yes-firm|yes-weak|no","qa_promo_explained":"full|partial|no","qa_closed":"booked|reserved|follow-up|no-close"}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:5000,system:sys,messages:[{role:'user',content:`Agent: ${agent}\nDate: ${date}\n\nTRANSCRIPT:\n${tx}`}]})
+    });
+    clearInterval(iv);
+    if(!res.ok){const e=await res.json();hideOv();showNotif('API error: '+(e.error?.message||res.status),'bad');return;}
+    const d=await res.json();
+    const raw=d.content[0].text.replace(/```json|```/g,'').trim();
+    const r=JSON.parse(raw);
+    r.agent=agent;r.date=date;r.loc=loc;r.id=Date.now();
+    lastReport=r;
+    history.unshift(r);if(history.length>50)history=history.slice(0,50);
+    localStorage.setItem('yw_hist',JSON.stringify(history));
+    hideOv();
+    renderReport(r);
+    go('report');
+    if(r.overall_score>=80) launchConfetti();
+    showNotif((r.overall_score>=80?'🎉 ':'📊 ')+'Done — '+r.overall_score+'/100 ('+r.grade+')',r.overall_score>=80?'good':'');
+  }catch(e){clearInterval(iv);hideOv();showNotif('❌ Error: '+e.message,'bad');console.error(e);}
+}
+
+// ══════════════════════════════════════
+// REPORT RENDERER
+// ══════════════════════════════════════
+function barC(p){return p>=80?'var(--lime)':p>=60?'var(--cyan)':p>=40?'var(--orange)':'var(--red)'}
+function scoreC(s){return s>=85?'var(--lime)':s>=70?'var(--cyan)':s>=55?'var(--orange)':'var(--red)'}
+function gradeC(g){return{A:'var(--lime)',B:'var(--cyan)',C:'var(--yellow)',D:'var(--orange)',F:'var(--red)'}[g]||'var(--text)'}
+
+function renderReport(r){
+  const allSecs=[...r.section_scores];
+  if(r.review_applied&&r.review_section) allSecs.push(r.review_section);
+  if(r.movein_applied&&r.movein_section) allSecs.push(r.movein_section);
+
+  const secHTML=allSecs.map(s=>{
+    const p=Math.round(s.pct||0);
+    return `<div class="rub-section">
+      <div class="rub-head" onclick="toggleRub(this)">
+        <div class="rub-name">${s.name} <span class="tx-xs tx-m">(${s.weight}%)</span></div>
+        <div class="rub-meta">
+          <div class="bar" style="width:80px"><div class="bar-f" style="width:${p}%;background:${barC(p)}"></div></div>
+          <span style="font-size:13px;font-weight:700;color:${barC(p)};min-width:38px;text-align:right">${p}%</span>
+        </div>
+      </div>
+      <div class="rub-body">
+        ${(s.criteria_scores||[]).map(c=>{
+          const sc=c.score,na=sc===null||sc===undefined;
+          const pill=na?'<span class="badge b-gray">N/A</span>':`<span class="badge ${sc>=3?'b-lime':sc>=2?'b-yellow':sc>=1?'b-orange':'b-red'}">${sc}/4</span>`;
+          return `<div class="crit-row">
+            <div><div class="crit-text">${c.text}</div>${c.note?`<div class="tx-xs tx-m mt10" style="margin-top:3px;font-style:italic;font-family:'DM Mono',monospace">${c.note}</div>`:''}</div>
+            <div>${pill}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  const obsHTML=(items,cls,lbl,ico)=>items&&items.length?`<div class="obs ${cls}"><div class="obs-lbl">${ico} ${lbl}</div>${items.map(i=>`<div class="obs-item">→ ${i}</div>`).join('')}</div>`:'';
+
+  const ppBadge=r.qa_pp_offered==='yes-firm'?'b-lime':r.qa_pp_offered==='yes-weak'?'b-yellow':'b-red';
+  const promoBadge=r.qa_promo_explained==='full'?'b-lime':r.qa_promo_explained==='partial'?'b-yellow':'b-red';
+  const closeBadge=(r.qa_closed==='booked'||r.qa_closed==='reserved')?'b-lime':r.qa_closed==='follow-up'?'b-yellow':'b-red';
+  const contBadge=r.qa_contact_captured==='all'?'b-lime':r.qa_contact_captured==='partial'?'b-yellow':'b-red';
+  const locLabel={walton:'Walton Way · Augusta GA',berkshire:'Berkshire · Columbia SC',mckinley:'McKinley · Pocatello ID'}[r.loc||r.location_used]||r.location_used||'—';
+
+  const customHTML=r.custom_phrases_check&&r.custom_phrases_check.length?`
+    <div class="card mb14">
+      <div class="card-title mb10">📌 Custom Phrase Check</div>
+      ${r.custom_phrases_check.map(p=>`
+        <div class="flex ic gap10" style="padding:8px 0;border-bottom:1px solid var(--border)">
+          <span class="badge ${p.found?'b-lime':'b-red'}">${p.found?'✓ found':'✗ missed'}</span>
+          <span class="tx-s" style="flex:1">"${p.phrase}"</span>
+          <span class="tx-xs tx-m tx-mono">${p.note||''}</span>
+        </div>`).join('')}
+    </div>`:'';
+
+  // score ring
+  const circumference=251.2;
+  const pct=r.overall_score/100;
+  const offset=(circumference-(pct*circumference)).toFixed(1);
+  const ringColor=gradeC(r.grade);
+
+  document.getElementById('report-out').innerHTML=`
+    <div class="flex ic jb mb20">
+      <div>
+        <div style="font-size:20px;font-weight:700">${r.agent}</div>
+        <div class="tx-s tx-m tx-mono">${r.date} · ${r.call_type} · ${locLabel}</div>
+      </div>
+      <span class="badge b-gray">${r.classification_confidence} confidence</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="var(--surface3)" stroke-width="8"/>
+          <circle cx="50" cy="50" r="40" fill="none" stroke="${ringColor}" stroke-width="8"
+            stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+            transform="rotate(-90 50 50)" style="transition:stroke-dashoffset .8s cubic-bezier(.34,1.56,.64,1)"/>
+        </svg>
+        <div class="ring-center">
+          <span class="ring-n score-pop" style="color:${ringColor}">${r.overall_score}</span>
+          <span class="ring-d">/100</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:36px;font-weight:700;color:${gradeC(r.grade)};line-height:1">${r.grade}</div>
+        <div style="font-size:15px;font-weight:500;margin-top:4px">${r.grade_label}</div>
+      </div>
+    </div>
+
+    <div class="g4 mb20">
+      <div class="stat"><div class="badge ${ppBadge}" style="margin-bottom:6px">${r.qa_pp_offered||'—'}</div><div class="stat-l">Protection Plan</div></div>
+      <div class="stat"><div class="badge ${promoBadge}" style="margin-bottom:6px">${r.qa_promo_explained||'—'}</div><div class="stat-l">Promo Explained</div></div>
+      <div class="stat"><div class="badge ${contBadge}" style="margin-bottom:6px">${r.qa_contact_captured||'—'}</div><div class="stat-l">Contact Captured</div></div>
+      <div class="stat"><div class="badge ${closeBadge}" style="margin-bottom:6px">${r.qa_closed||'—'}</div><div class="stat-l">Close Result</div></div>
+    </div>
+
+    ${r.review_applied?'<div class="callout c-lime mb14">⭐ §06 Google Review Request scored</div>':''}
+    ${r.movein_applied?'<div class="callout c-cyan mb14">📋 §07 Move-In Compliance scored</div>':''}
+
+    <div class="card mb14">
+      <div class="card-title mb10">💬 Coaching Summary</div>
+      <p class="tx-s" style="line-height:1.9;color:var(--text)">${r.summary}</p>
+      ${r.pp_note?`<hr><div class="tx-xs tx-m mb6" style="font-weight:700;text-transform:uppercase;letter-spacing:.07em">🛡 Protection Plan</div><p class="tx-s" style="color:var(--text)">${r.pp_note}</p>`:''}
+      ${r.promo_note?`<hr><div class="tx-xs tx-m mb6" style="font-weight:700;text-transform:uppercase;letter-spacing:.07em">🏷 Promo & Pricing</div><p class="tx-s" style="color:var(--text)">${r.promo_note}</p>`:''}
+    </div>
+
+    <div class="card mb14">
+      <div class="card-title mb14">🔍 Observations</div>
+      ${obsHTML(r.did_well,'good','Did Well (3–4)','🟢')}
+      ${obsHTML(r.fairly_well,'fair','Fairly Well (2)','🟡')}
+      ${obsHTML(r.needs_work,'bad','Needs Work (0–1)','🔴')}
+      ${r.key_quote_good?`<div class="tx-xs tx-m mt10 mb6" style="font-weight:700">✨
