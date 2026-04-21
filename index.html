@@ -1055,4 +1055,336 @@ function renderReport(r){
       ${obsHTML(r.did_well,'good','Did Well (3–4)','🟢')}
       ${obsHTML(r.fairly_well,'fair','Fairly Well (2)','🟡')}
       ${obsHTML(r.needs_work,'bad','Needs Work (0–1)','🔴')}
-      ${r.key_quote_good?`<div class="tx-xs tx-m mt10 mb6" style="font-weight:700">✨
+      ${r.key_quote_good?`<div class="tx-xs tx-m mt10 mb6" style="font-weight:700">✨ Moment that worked:</div><div class="qblock">"${r.key_quote_good}"</div>`:''}
+      ${r.key_quote_improve?`<div class="tx-xs tx-m mb6 mt10" style="font-weight:700">⚡ Moment to improve:</div><div class="qblock">"${r.key_quote_improve}"</div>${r.better_phrase?`<div class="tx-xs tx-m mb6">💡 Try instead:</div><div class="qsuggest">"${r.better_phrase}"</div>`:''}`:''}
+    </div>
+
+    <div class="card mb14">
+      <div class="card-title mb10">📋 Section Breakdown</div>
+      ${secHTML}
+    </div>
+
+    ${customHTML}
+
+    <div class="card">
+      <div class="card-title mb10">📌 QA Tracking</div>
+      <table>
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td class="td-main">Agent</td><td>${r.agent}</td></tr>
+        <tr><td class="td-main">Date</td><td>${r.date}</td></tr>
+        <tr><td class="td-main">Location</td><td>${locLabel}</td></tr>
+        <tr><td class="td-main">Call Type</td><td>${r.call_type}</td></tr>
+        <tr><td class="td-main">Score</td><td>${r.overall_score}/100 (Grade ${r.grade})</td></tr>
+        <tr><td class="td-main">Protection Plan</td><td>${r.qa_pp_offered||'—'}</td></tr>
+        <tr><td class="td-main">Promo Explained</td><td>${r.qa_promo_explained||'—'}</td></tr>
+        <tr><td class="td-main">Contact Captured</td><td>${r.qa_contact_captured||'—'}</td></tr>
+        <tr><td class="td-main">Close Result</td><td>${r.qa_closed||'—'}</td></tr>
+        <tr><td class="td-main">Review Request</td><td>${r.review_applied?'Yes':'No'}</td></tr>
+        <tr><td class="td-main">Move-In Compliance</td><td>${r.movein_applied?'Yes':'No'}</td></tr>
+      </table>
+    </div>`;
+}
+
+function toggleRub(h){
+  h.classList.toggle('open');
+  h.nextElementSibling.classList.toggle('open');
+}
+
+// ══════════════════════════════════════
+// MANUAL SCORING
+// ══════════════════════════════════════
+function buildManual(){
+  const idx=parseInt(document.getElementById('m-type').value);
+  if(isNaN(idx))return;
+  mType=idx;mScores={};
+  const rub=RUBRICS[idx];
+  let html='';
+  rub.sections.forEach(s=>{
+    html+=`<div class="rub-section">
+      <div class="rub-head open" onclick="toggleRub(this)">
+        <div class="rub-name">${s.name} <span class="tx-xs tx-m">(${s.weight}%)</span></div>
+        <div class="rub-meta"><span class="tx-xs tx-mono" id="ms-${s.id}">—</span></div>
+      </div>
+      <div class="rub-body open">
+        ${s.criteria.map((c,ci)=>`<div class="crit-row">
+          <div class="crit-text">${c}</div>
+          <div class="crit-pills">
+            ${[0,1,2,3,4].map(n=>`<button class="pill" data-s="${s.id}" data-i="${ci}" data-v="${n}" onclick="setPill(this)">${n}</button>`).join('')}
+            <button class="pill" data-s="${s.id}" data-i="${ci}" data-v="na" onclick="setPill(this)" style="font-size:8px">N/A</button>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  document.getElementById('m-rubric').innerHTML=html;
+  document.getElementById('m-foot').style.display='block';
+  calcManual();
+}
+
+function setPill(b){
+  const s=b.dataset.s,i=b.dataset.i,v=b.dataset.v;
+  document.querySelectorAll(`[data-s="${s}"][data-i="${i}"]`).forEach(x=>{x.className='pill';});
+  mScores[s+'_'+i]=v==='na'?'na':parseInt(v);
+  b.classList.add(v==='na'?'sna':'s'+v);
+  b.classList.add('pill-popping');
+  setTimeout(()=>b.classList.remove('pill-popping'),200);
+  calcManual();
+}
+
+function calcManual(){
+  if(mType===null)return;
+  const rub=RUBRICS[mType];let total=0;
+  rub.sections.forEach(s=>{
+    const scored=[];
+    s.criteria.forEach((_,ci)=>{const k=s.id+'_'+ci;const v=mScores[k];if(v!=='na'&&v!==undefined)scored.push(v);});
+    const avg=scored.length?scored.reduce((a,b)=>a+b,0)/scored.length:0;
+    const pct=(avg/4)*100;total+=pct*(s.weight/100);
+    const el=document.getElementById('ms-'+s.id);
+    if(el)el.textContent=scored.length?Math.round(pct)+'%':'—';
+  });
+  const final=Math.max(1,Math.round(total));
+  document.getElementById('m-score-out').textContent=final+'/100';
+}
+
+function resetManual(){
+  mScores={};
+  document.querySelectorAll('.pill').forEach(p=>p.className='pill');
+  document.getElementById('m-score-out').textContent='—';
+  document.querySelectorAll('[id^="ms-"]').forEach(e=>e.textContent='—');
+}
+
+function saveManual(){
+  const agent=document.getElementById('m-agent').value.trim()||'Unknown Agent';
+  const txt=document.getElementById('m-score-out').textContent;
+  const score=parseInt(txt);
+  if(isNaN(score)){showNotif('Score some criteria first','bad');return;}
+  const grade=score>=90?'A':score>=80?'B':score>=65?'C':score>=50?'D':'F';
+  const r={
+    id:Date.now(),agent,
+    date:new Date().toISOString().split('T')[0],
+    call_type:RUBRICS[mType].name,
+    call_type_num:mType+1,
+    overall_score:score,grade,
+    grade_label:score>=90?'Excellent':score>=80?'Good':score>=65?'Fair':score>=50?'Poor':'Needs Coaching',
+    summary:`Manual evaluation. ${agent} scored ${score}/100 (Grade ${grade}).`,
+    did_well:[],fairly_well:[],needs_work:[],
+    section_scores:[],
+    review_applied:false,movein_applied:false,
+    review_section:null,movein_section:null,
+    custom_phrases_check:[],
+    classification_confidence:'manual',
+    qa_pp_offered:'—',qa_promo_explained:'—',
+    qa_contact_captured:'—',qa_closed:'—',
+    loc:'',pp_note:'',promo_note:'',
+    key_quote_good:'',key_quote_improve:'',better_phrase:''
+  };
+  lastReport=r;
+  history.unshift(r);if(history.length>50)history=history.slice(0,50);
+  localStorage.setItem('yw_hist',JSON.stringify(history));
+  renderReport(r);go('report');
+  if(score>=80)launchConfetti();
+  showNotif((score>=80?'🎉 ':'💾 ')+'Saved — '+score+'/100',score>=80?'good':'');
+}
+
+// ══════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════
+function renderHistory(){
+  const el=document.getElementById('hist-out');
+  if(!history.length){
+    el.innerHTML='<div class="empty"><span class="empty-ico">📂</span><div class="empty-t">No evaluations yet</div><div class="empty-s">run your first evaluation to see it here</div></div>';
+    return;
+  }
+  const gc={A:'b-lime',B:'b-lime',C:'b-yellow',D:'b-orange',F:'b-red'};
+  el.innerHTML=`<div class="flex ic jb mb14">
+    <span class="tx-s tx-m">${history.length} evaluation${history.length!==1?'s':''}</span>
+    <button class="btn btn-sm btn-danger" onclick="clearHist()">🗑 clear all</button>
+  </div>`+history.map(r=>`
+    <div class="hist-row" onclick="viewHist(${r.id})">
+      <div style="flex:1">
+        <div class="hist-name">${r.agent}</div>
+        <div class="hist-meta">${r.date} · ${r.call_type}</div>
+      </div>
+      <span class="badge ${gc[r.grade]||'b-gray'}">${r.overall_score}/100</span>
+      <span class="badge b-gray">${r.grade}</span>
+      ${r.classification_confidence==='manual'?'<span class="badge b-gray" style="font-size:10px">manual</span>':''}
+    </div>`).join('');
+}
+
+function viewHist(id){
+  const r=history.find(h=>h.id===id);
+  if(!r)return;
+  lastReport=r;
+  renderReport(r);
+  go('report');
+}
+
+function clearHist(){
+  if(!confirm('Clear all evaluation history?'))return;
+  history=[];
+  localStorage.setItem('yw_hist','[]');
+  renderHistory();
+}
+
+// ══════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════
+function renderSettings(){
+  document.getElementById('s-key').value=localStorage.getItem('yw_key')||'';
+  renderPhrases();
+}
+
+function saveKey(){
+  const k=document.getElementById('s-key').value.trim();
+  localStorage.setItem('yw_key',k);
+  document.getElementById('key-status').textContent=k?'✅ Key saved.':'Key cleared.';
+  showNotif(k?'🔑 API key saved':'Key cleared',k?'good':'');
+}
+
+async function testKey(){
+  const k=document.getElementById('s-key').value.trim();
+  if(!k){showNotif('Enter a key first','bad');return;}
+  document.getElementById('key-status').textContent='Testing…';
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:10,messages:[{role:'user',content:'hi'}]})
+    });
+    if(r.ok){
+      document.getElementById('key-status').textContent='✅ Connected successfully!';
+      showNotif('✅ API key works!','good');
+    } else {
+      const e=await r.json();
+      document.getElementById('key-status').textContent='❌ Error: '+(e.error?.message||r.status);
+      showNotif('❌ Key failed','bad');
+    }
+  }catch(e){
+    document.getElementById('key-status').textContent='❌ Failed: '+e.message;
+    showNotif('❌ Connection failed','bad');
+  }
+}
+
+function renderPhrases(){
+  const el=document.getElementById('phrases-out');
+  if(!phrases.length){
+    el.innerHTML='<div class="tx-xs tx-m mb10" style="font-family:\'DM Mono\',monospace">No custom phrases yet.</div>';
+    return;
+  }
+  el.innerHTML=phrases.map((p,i)=>`
+    <div class="flex ic gap10 mb6">
+      <span class="badge b-cyan" style="flex:1;justify-content:flex-start;padding:6px 12px">${p}</span>
+      <button class="btn btn-sm btn-ghost" onclick="removePhrase(${i})">remove</button>
+    </div>`).join('');
+}
+
+function addPhrase(){
+  const inp=document.getElementById('s-phrase');
+  const v=inp.value.trim();
+  if(!v)return;
+  phrases.push(v);
+  localStorage.setItem('yw_phrases',JSON.stringify(phrases));
+  inp.value='';
+  renderPhrases();
+  showNotif('📌 Phrase added','good');
+}
+
+function removePhrase(i){
+  phrases.splice(i,1);
+  localStorage.setItem('yw_phrases',JSON.stringify(phrases));
+  renderPhrases();
+}
+
+// ══════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════
+function launchConfetti(){
+  const colors=['var(--lime)','var(--cyan)','var(--pink)','var(--yellow)','var(--orange)','var(--purple)'];
+  for(let i=0;i<60;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.left=Math.random()*100+'vw';
+    el.style.background=colors[Math.floor(Math.random()*colors.length)];
+    el.style.width=(Math.random()*8+4)+'px';
+    el.style.height=(Math.random()*8+4)+'px';
+    el.style.borderRadius=Math.random()>0.5?'50%':'2px';
+    el.style.animationDuration=(Math.random()*2+1.5)+'s';
+    el.style.animationDelay=Math.random()*0.8+'s';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),(Math.random()*2+1.5)*1000+800);
+  }
+}
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+function showOv(t,s){
+  document.getElementById('ov-txt').textContent=t;
+  document.getElementById('ov-sub').textContent=s;
+  document.getElementById('overlay').classList.add('show');
+}
+function hideOv(){document.getElementById('overlay').classList.remove('show');}
+
+let ntimer;
+function showNotif(m,type){
+  const el=document.getElementById('notif');
+  el.textContent=m;
+  el.className='notif'+(type==='good'?' good':type==='bad'?' bad':'');
+  el.style.display='block';
+  clearTimeout(ntimer);
+  ntimer=setTimeout(()=>{el.style.display='none';},3200);
+}
+
+function copyReport(){
+  if(!lastReport)return;
+  const r=lastReport;
+  let t=`YOURWAY STORAGE — CALL QA REPORT\n\nAgent: ${r.agent} | Date: ${r.date} | Type: ${r.call_type}\nScore: ${r.overall_score}/100 (${r.grade}) — ${r.grade_label}\n\n${r.summary}\n\n`;
+  if(r.pp_note)t+='PROTECTION PLAN:\n'+r.pp_note+'\n\n';
+  if(r.promo_note)t+='PROMO & PRICING:\n'+r.promo_note+'\n\n';
+  if(r.did_well?.length)t+='DID WELL:\n'+r.did_well.map(x=>'• '+x).join('\n')+'\n\n';
+  if(r.fairly_well?.length)t+='FAIRLY WELL:\n'+r.fairly_well.map(x=>'• '+x).join('\n')+'\n\n';
+  if(r.needs_work?.length)t+='NEEDS WORK:\n'+r.needs_work.map(x=>'• '+x).join('\n')+'\n\n';
+  navigator.clipboard.writeText(t).then(()=>showNotif('📋 Copied to clipboard','good'));
+}
+
+function loadSample(){
+  document.getElementById('e-agent').value='Sarah Chen';
+  document.getElementById('e-loc').value='walton';
+  document.getElementById('e-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('e-transcript').value=`[00:00] Agent: Thank you for calling YourWay Storage, this is Sarah, how can I help you today?
+[00:04] Caller: Hi yeah, I need a storage unit. I'm moving out of my apartment next month.
+[00:09] Agent: Of course! Can I get your name real quick?
+[00:11] Caller: Yeah it's Marcus Williams.
+[00:13] Agent: Great, Marcus! So you're moving — can you tell me a little about what you need to store? Like furniture, boxes, or both?
+[00:19] Caller: Yeah it's like a full bedroom, couch, TV, and probably 30 boxes or so.
+[00:24] Agent: Perfect, that sounds like a 10x10 is your best bet Marcus — it's about the size of a small bedroom, so your couch, bed frame, dresser and all those boxes will fit comfortably. At our Walton Way location here in Augusta we're fully climate controlled which is great for your furniture and electronics especially in this heat.
+[00:42] Caller: Nice. What does it cost?
+[00:44] Agent: So right now we have a great promotion — it's 50% off your first month, so the 10x10 would be $73 for your first month instead of $145. That promo does end April 30th so the timing is perfect. After the first month it goes to the standard rate of $145. There's also a one-time admin fee of $25 when you move in.
+[01:04] Caller: Okay that's reasonable.
+[01:06] Agent: We also offer a protection plan for your belongings — it's zero deductible, and I'd recommend our $17 a month plan which gives you $3,500 in coverage. That covers your TV, couch, everything you mentioned really well.
+[01:22] Caller: I have renters insurance actually.
+[01:24] Agent: That's good to know Marcus, though a lot of renters policies don't cover off-site storage. I'd still really recommend the protection plan — $17 a month for zero deductible peace of mind is hard to beat for what you're storing.
+[01:36] Caller: Hmm, my stuff isn't really worth $3,500 though.
+[01:39] Agent: No problem — we also have a $13 a month option that covers up to $2,500. Given what you described that should cover you well.
+[01:46] Caller: Okay yeah I can do that.
+[01:48] Agent: Perfect! Also want to let you know our access hours are 6am to 10pm every day, and customer care is available weekdays and Saturday 9 to 8, Sunday 9 to 5. Our facility uses Nokē smart access so you get in right from your phone.
+[02:01] Caller: Oh that's cool. I might need to shop around a little bit though.
+[02:05] Agent: Totally understand Marcus — just want to let you know our pricing and promo rate aren't guaranteed, they change based on availability. I can reserve the 10x10 for you right now with no credit card required, takes 3 minutes, and that locks in this rate while you're deciding.
+[02:19] Caller: Yeah okay let's do that.
+[02:21] Agent: Let me grab your number real quick.
+[02:24] Caller: 706-555-0147.
+[02:27] Agent: Got it. And what email should I send the confirmation to?
+[02:31] Caller: marcus.w92@gmail.com
+[02:34] Agent: Perfect Marcus, you're all set! Anything else I can help you with?
+[02:38] Caller: No that's it, thanks Sarah.
+[02:40] Agent: My pleasure, talk soon!`;
+  showNotif('📋 Sample loaded!','good');
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+renderSettings();
+</script>
+</body>
+</html>
