@@ -733,11 +733,9 @@ hr{border:none;border-top:1px solid var(--border);margin:18px 0}
 
 <script>
 // ╔════════════════════════════════════════════════════╗
-// ║  PASTE YOUR GEMINI API KEY HERE — ONE TIME ONLY   ║
-// ║  Get it FREE at: aistudio.google.com              ║
-// ║  Click "Get API key" → "Create API key" → paste  ║
+// ║  API KEY IS STORED SAFELY IN NETLIFY               ║
+// ║  No key needed here — handled by Netlify function  ║
 // ╚════════════════════════════════════════════════════╝
-const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY_HERE';
 
 // ══════════════════════════════════════
 // RUBRICS (full data preserved)
@@ -847,8 +845,6 @@ function go(name){
 // AI EVAL
 // ══════════════════════════════════════
 async function runEval(){
-  const key=GEMINI_API_KEY;
-  if(!key||key===){showNotif('⚙️ Paste your Gemini API key in the code first','bad');return;}
   const agent=document.getElementById('e-agent').value.trim()||'Unknown Agent';
   const loc=document.getElementById('e-loc').value;
   const date=document.getElementById('e-date').value.trim()||new Date().toISOString().split('T')[0];
@@ -920,19 +916,39 @@ Respond ONLY with valid JSON, no markdown:
 {"call_type":"string","call_type_num":1,"location_used":"walton|berkshire|mckinley|unknown","classification_confidence":"high|medium|low","overall_score":85,"grade":"A","grade_label":"string","section_scores":[{"id":"s01","name":"string","weight":10,"avg_score":3.5,"pct":87.5,"weighted":8.75,"criteria_scores":[{"text":"string","score":4,"note":"string"}]}],"review_applied":false,"movein_applied":false,"review_section":null,"movein_section":null,"did_well":["string"],"fairly_well":["string"],"needs_work":["string"],"pp_note":"string","promo_note":"string","key_quote_good":"string","key_quote_improve":"string","better_phrase":"string","summary":"string","custom_phrases_check":[{"phrase":"string","found":true,"note":"string"}],"qa_contact_captured":"all|partial|none","qa_pp_offered":"yes-firm|yes-weak|no","qa_promo_explained":"full|partial|no","qa_closed":"booked|reserved|follow-up|no-close"}`;
 
   try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,{
+    const res=await fetch('/.netlify/functions/evaluate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        contents:[{parts:[{text:`${sys}\n\nAgent: ${agent}\nDate: ${date}\n\nTRANSCRIPT:\n${tx}`}]}],
-        generationConfig:{temperature:0.1,maxOutputTokens:5000}
+        contents:[{role:'user',parts:[{text:`${sys}\n\nAgent: ${agent}\nDate: ${date}\n\nTRANSCRIPT:\n${tx}`}]}],
+        generationConfig:{temperature:0.1,maxOutputTokens:6000,responseMimeType:'application/json'}
       })
     });
     clearInterval(iv);
-    if(!res.ok){const e=await res.json();hideOv();showNotif('API error: '+(e.error?.message||res.status),'bad');return;}
+    if(!res.ok){
+      const e=await res.json();
+      hideOv();
+      const msg=e.error?.message||e.error?.status||res.status;
+      showNotif('❌ API error: '+msg,'bad');
+      console.error('Error:',e);
+      return;
+    }
     const d=await res.json();
+    if(!d.candidates||!d.candidates[0]){
+      hideOv();
+      showNotif('❌ No response — try again','bad');
+      console.error('Empty response:',d);
+      return;
+    }
     const raw=d.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim();
-    const r=JSON.parse(raw);
+    let r;
+    try{r=JSON.parse(raw);}
+    catch(pe){
+      hideOv();
+      showNotif('❌ Could not parse response — try again','bad');
+      console.error('Parse error. Raw:',raw);
+      return;
+    }
     r.agent=agent;r.date=date;r.loc=loc;r.id=Date.now();
     lastReport=r;
     history.unshift(r);if(history.length>50)history=history.slice(0,50);
@@ -942,7 +958,7 @@ Respond ONLY with valid JSON, no markdown:
     go('report');
     if(r.overall_score>=80) launchConfetti();
     showNotif((r.overall_score>=80?'🎉 ':'📊 ')+'Done — '+r.overall_score+'/100 ('+r.grade+')',r.overall_score>=80?'good':'');
-  }catch(e){clearInterval(iv);hideOv();showNotif('❌ Error: '+e.message,'bad');console.error(e);}
+  }catch(e){clearInterval(iv);hideOv();showNotif('❌ '+e.message,'bad');console.error('Fetch error:',e);}
 }
 
 // ══════════════════════════════════════
