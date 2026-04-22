@@ -848,7 +848,7 @@ function go(name){
 // ══════════════════════════════════════
 async function runEval(){
   const key=GEMINI_API_KEY;
-  if(!key||key===AIzaSyB2YSrUTrewOKzWZjB8NFbn0_imWDhEp28){showNotif('⚙️ Paste your Gemini API key in the code first','bad');return;}
+  if(!key||key===){showNotif('⚙️ Paste your Gemini API key in the code first','bad');return;}
   const agent=document.getElementById('e-agent').value.trim()||'Unknown Agent';
   const loc=document.getElementById('e-loc').value;
   const date=document.getElementById('e-date').value.trim()||new Date().toISOString().split('T')[0];
