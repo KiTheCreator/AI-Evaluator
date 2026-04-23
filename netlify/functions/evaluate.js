@@ -10,7 +10,6 @@ exports.handler = async (event) => {
 
   try {
     const { transcript } = JSON.parse(event.body);
-
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -25,28 +24,13 @@ exports.handler = async (event) => {
         messages: [{ role: 'user', content: transcript }],
       }),
     });
-
     const data = await res.json();
-
     if (!res.ok) {
-      return {
-        statusCode: res.status,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: data.error?.message || 'OpenAI error' }),
-      };
+      return { statusCode: res.status, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: data.error?.message || 'OpenAI error' }) };
     }
-
     const text = data.choices?.[0]?.message?.content || '';
-
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
-    };
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: err.message }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   }
 };
